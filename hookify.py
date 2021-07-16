@@ -81,12 +81,13 @@ def map_format_specifier(type):
         return "%@"
 
 class ObjcMethod():
-    def __init__(self, line, interface):
+    def __init__(self, line: str, interface: str):
         # TODO: do replacement in one single line...
         self.skip = False
-        self.line = type_unknown_regex().sub("id", line);
+        self.line: str = type_unknown_regex().sub("id", line)
         self.line = struct_regex().sub("id", self.line)
         self.ret_type = self.get_ret_type()
+        self.args = self.get_args()
         self.interface = interface
         self.name = self.get_name()
         self.full_name = "[%s %s]" %(interface, self.name)
@@ -108,12 +109,27 @@ class ObjcMethod():
         if ret_type is not type_unknown_regex().search(ret_type) and not struct_regex().search(ret_type) and not avoided_pointer_regex().search(ret_type):
             return ret_type
         return "id"
+    
+    def get_args(self):
+        if ":" not in self.line:
+            return []
+        args = self.line[self.line.index(")")+1:self.line.index(";")].split(" ")
+        args = [arg.replace(":", "").replace("(", " ").replace(")", " ") for arg in args]
+
+        return [a.split(" ") for a in args]
 
     def hook(self):
+        # print header
+        print(f'{self.line[:-2]} {"{"}[LogTool logDataFromNSString:@">>>> - {self.full_name}"]; ', end="")
+        # Print args
+        for name, type, arg in self.args:
+            print(f'[LogTool untruncatedNSLog:[NSString stringWithFormat: @">>>> - {self.full_name} ==> {name}: {map_format_specifier(type)}", {arg}]];', end=" ")
+
+        # print ret
         if self.ret_type == "void":
-            print '%s {[LogTool logDataFromNSString:@">>>> - %s"];%%log; %%orig;[LogTool logDataFromNSString:@"<<<< - %s"]; }' %(self.line[:-2], self.full_name, self.full_name)
+            print('%%orig;[LogTool logDataFromNSString:@"<<<< - %s"]; }' %(self.full_name))
         else:
-            print '%s {[LogTool logDataFromNSString:@">>>> - %s"];%%log; %s ret = %%orig;[LogTool logDataFromNSString:[NSString stringWithFormat: @"<<<< - %s ==> ret value: %s", ret]];return ret; }' %(self.line[:-2], self.full_name, self.ret_type, self.full_name, map_format_specifier(self.ret_type))
+            print('%s ret = %%orig;[LogTool logDataFromNSString:[NSString stringWithFormat: @"<<<< - %s ==> ret value: %s", ret]];return ret; }' %(self.ret_type, self.full_name, map_format_specifier(self.ret_type)))
 
 
 
@@ -142,11 +158,11 @@ def hook_file(filepath):
     parser = HeaderParser(filepath)
     if (parser.interface == None):
         return
-    print "%hook", parser.interface
+    print("%hook", parser.interface)
     for method in parser.methods:
         if method.name not in ".cxx_destruct" and method.name not in ".cxx_construct" and not method.skip:
             method.hook()
-    print "%end"
+    print("%end")
 
 def hook_many_files(filepaths):
     for file in filepaths:
@@ -210,7 +226,7 @@ def main(argv):
             header_file_path = arg
 
     if headers_directory_path:
-        print_hookify_header()
+        #print_hookify_header()
         if not dumped_class_filter_pattern:
             print("no filter pattern set for directory dump, please choose a pattern")
             usage()
@@ -219,8 +235,10 @@ def main(argv):
         filtered_files = filter_files(files, dumped_class_filter_pattern)
         hook_many_files(filtered_files)
     elif header_file_path:
-        print_hookify_header()
+        #print_hookify_header()
         hook_file(header_file_path)
     else:
         usage()
-main(sys.argv)
+
+if __name__ == '__main__':
+    main(sys.argv)

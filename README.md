@@ -1,3 +1,10 @@
+# THINGS CHANGED FROM ORIGINAL
+
+* Python3 compadible
+* Logs arguments aswell, no option to configure
+
+___
+
 ## Getting started
 
 Hookify is a __serious opinionated alternative__ to [Logify](https://github.com/theos/logos/wiki/logify.pl).

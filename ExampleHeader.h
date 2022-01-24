@@ -13,6 +13,7 @@
 }
 
 - (id)doSomethingWithArgs:(id)arg1 somethingElse:(id)arg2;
+- (id)doSomethingWithAnnoyingSpaces:(unsigned long long)arg1 somethingElse:(id)arg2;
 
 @end
 

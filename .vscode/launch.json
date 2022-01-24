@@ -8,9 +8,9 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "hookify.py",
             "console": "integratedTerminal",
-            "args": ["-f", "MyBleManager.h"]
+            "args": ["-f", "ExampleHeader.h"]
         }
     ]
 }

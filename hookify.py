@@ -114,9 +114,32 @@ class ObjcMethod():
         if ":" not in self.line:
             return []
         args = self.line[self.line.index(")")+1:self.line.index(";")].split(" ")
+        args = args[::-1]
+
+        # put types like long long back together
+        i = 0
+        while i < len(args):
+            section = args[i]
+
+            if ":" not in section:
+                args[i+1] += f" {section}"
+                del args[i]
+                i -= 1
+            i += 1
+
+        print("", end="")
+
         args = [arg.replace(":", "").replace("(", " ").replace(")", " ") for arg in args]
 
-        return [a.split(" ") for a in args]
+        out = []
+        for arg in args:
+            a = arg.split(" ")
+            if len(a) == 3:
+                out.append(a)
+            elif len(a) > 3:
+                out.append([a[0], " ".join(a[1:-1]), a[-1]])
+
+        return out
 
     def hook(self):
         # print header

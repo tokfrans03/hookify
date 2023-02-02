@@ -216,7 +216,7 @@ def get_all_header_files(basepath, pattern=""):
 def filter_files(files, regex_pattern):
     try:
         regex = re.compile(regex_pattern, re.IGNORECASE)
-        selected_files = filter(regex.search, files)
+        selected_files = list(filter(regex.search, files))
         print("// %d filtered files" %(len(selected_files)))
         return selected_files
     except re.error:

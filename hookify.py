@@ -154,6 +154,9 @@ class ObjcMethod():
             if use_rlog:
                 print(f'RLog([NSString stringWithFormat: @">>>> - {self.full_name} ==> {name}: {map_format_specifier(type)}", {arg}]);', end=" ")
             else:
+                if arg == '':
+                    type, arg = type.rsplit(" ", maxsplit=1)
+                # print("//", repr(name), repr(type), repr(arg))
                 print(f'[LogTool untruncatedNSLog:[NSString stringWithFormat: @">>>> - {self.full_name} ==> {name}: {map_format_specifier(type)}", {arg}]];', end=" ")
 
         # print ret
